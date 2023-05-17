@@ -10,34 +10,57 @@ class ConsoleHandler:
 		self.motor_msgs_list = []
 
 		self.__joy_topic = 'console_joy_control'
-		self.__console_sub = rospy.Subscriber(self.__joy_topic, String, self.__joy_callback)
+		self.__joy_sub = rospy.Subscriber(self.__joy_topic, String, self.__joy_callback)
 
 		self.__ctrl_topic = 'console_control'
-		self.__console_pub = rospy.Publisher(self.__ctrl_topic, String, queue_size=10)
+		self.__ctrl_pub = rospy.Publisher(self.__ctrl_topic, String, queue_size=10)
 		
 		self.__ctrl_feedback_topic = 'console_control_feedback'
 		self.__ctrl_feedback_sub = rospy.Subscriber(self.__ctrl_feedback_topic, String, self.__ctrl_feedback_callback)
+
+		self.__telemetry_topic = 'console_telemetry'
+		self.__telemetry_pub = rospy.Publisher(self.__telemetry_topic, String, queue_size=10)
 
 		self.__remote_ctrl_is_ON = False
 		self.__joy_is_connected = False
 			
 	@property
 	def console_sub(self):
-		return self.__console_sub
+		return self.__joy_sub
 	
 	def receive(self):
 		# rospy.spin()
 		pass
 
-	def send(self, msg:str):
+	def send_control(self, msg:str):
 		''' 
-			remote_ctrl_status - ON / OFF
-			remote_ctrl.on - ВКЛ. дист. упр-е
-			remote_ctrl.off - ВЫКЛ. дист. упр-е
-			joy_status - (not) connected
+		remote_ctrl_status - ON / OFF -> remote_ctrl_status:on(off)
+		remote_ctrl.on - ВКЛ. дист. упр-е
+		remote_ctrl.off - ВЫКЛ. дист. упр-е
+		joy_status - (not) connected -> joy:(dis)connected
 		'''	
-		self.__console_pub.publish(msg)
+		self.__ctrl_pub.publish(msg)
 		print(f"[{self.__ctrl_topic}] Sent: {msg}")
+		pass
+
+	def send_telemetry(self, position:list, speed:int, wheel_rotation:float):
+		'''
+		position: [x,y] - координаты трактора
+		speed: 25 - скорость трактора
+		wheel_rotation: [-1 ... +1] - угол поворота руля
+		'''
+		
+		if wheel_rotation < -1:
+			wheel_rotation = -1
+
+		elif wheel_rotation > 1:
+			wheel_rotation = 1
+
+		msg = "position:" + str(position[0]) + "," + str(position[1]) \
+			+ ";speed:" + str(speed) \
+			+ ";wheel_rotation:" + str(wheel_rotation)
+		self.__telemetry_pub.publish(msg)
+		print(f"[{self.__telemetry_topic}] Sent: {msg}")
 		pass
 	
 	def __joy_callback(self, msg:String):

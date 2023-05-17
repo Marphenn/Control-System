@@ -3,7 +3,7 @@ import rospy
 from std_msgs.msg import String
 
 def ros_sender(msg:String): # pub:rospy.Publisher, 
-    '''Send joy commands via ROS'''
+    '''Send commands via ROS'''
     try:
         # pub.publish(msg)
         # rospy.loginfo(f"[SENT] {msg}")
@@ -15,7 +15,7 @@ def ros_sender(msg:String): # pub:rospy.Publisher,
             pub.publish(msg)
             rospy.loginfo(f"[SENT] {msg}")
 
-            msg_feedback = "joy:connected"
+            msg_feedback = "resolution:720"
             feedback_pub.publish(msg_feedback)
             rospy.loginfo(f"[SENT] {msg_feedback}")
 
@@ -25,7 +25,7 @@ def ros_sender(msg:String): # pub:rospy.Publisher,
             pub.publish(msg)
             rospy.loginfo(f"[SENT] {msg}")
 
-            msg_feedback = "joy:disconnected"
+            msg_feedback = "resolution:240"
             feedback_pub.publish(msg_feedback)
             rospy.loginfo(f"[SENT] {msg_feedback}")
 
@@ -52,7 +52,8 @@ if __name__ == "__main__":
     pub = rospy.Publisher(pubTopic, String, queue_size=10)
 
     feedback_topic = 'console_control_feedback'
-    feedback_pub = rospy.Publisher(feedback_topic, String, queue_size=10)
+    camera_ctrl_topic = 'camera_control_feedback'
+    feedback_pub = rospy.Publisher(camera_ctrl_topic, String, queue_size=10)
     rospy.init_node('console_test')
     try:
         # msg = "gas"
