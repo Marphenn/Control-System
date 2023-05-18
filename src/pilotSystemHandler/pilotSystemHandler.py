@@ -12,9 +12,12 @@ class PilotSystemHandler:
         self.ctrl_topic = 'pilot_system_control' # Для команд управления подсист. пилотир-я
         self.__ctrl_pub = rospy.Publisher(self.ctrl_topic, String, queue_size=10)
 
+        # Возможно, пойдет в класс TechnicalController
         self.__ctrl_feedback_topic = 'pilot_system_control_feedback' # Для ответа на команды управления подсист. пилотир-я
         self.__ctrl_feedback_sub = rospy.Subscriber(self.__ctrl_feedback_topic, String, self.__ctrl_feedback_callback)
-        pass
+        #
+
+        self.motors_cmds_list = [] # список команд упр-я моторами
 
     def receive(self):
         # rospy.spin()

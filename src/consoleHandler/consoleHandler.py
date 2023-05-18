@@ -7,16 +7,20 @@ from std_msgs.msg import Int32
 
 class ConsoleHandler:
 	def __init__(self):
-		self.motor_msgs_list = []
-
+		# (!) Изменить на joy_msgs_list: в этом списке будут команды дист. упр-я, принятые с ВПУ
+		self.motor_msgs_list = [] 
+		#
+		
 		self.__joy_topic = 'console_joy_control'
 		self.__joy_sub = rospy.Subscriber(self.__joy_topic, String, self.__joy_callback)
 
 		self.__ctrl_topic = 'console_control'
 		self.__ctrl_pub = rospy.Publisher(self.__ctrl_topic, String, queue_size=10)
 		
+		# Возможно, пойдет в класс TechnicalController
 		self.__ctrl_feedback_topic = 'console_control_feedback'
 		self.__ctrl_feedback_sub = rospy.Subscriber(self.__ctrl_feedback_topic, String, self.__ctrl_feedback_callback)
+		#
 
 		self.__telemetry_topic = 'console_telemetry'
 		self.__telemetry_pub = rospy.Publisher(self.__telemetry_topic, String, queue_size=10)

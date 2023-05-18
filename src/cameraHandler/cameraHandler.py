@@ -2,24 +2,36 @@
 
 import rospy
 from std_msgs.msg import String
-from std_msgs.msg import Int32
+from std_msgs.msg import Int8
 
 class CameraHandler:
     def __init__(self) -> None:
+        self.obstacles_topic = 'camera_obstacles'
+        self.__obstacles_sub = rospy.Subscriber(self.obstacles_topic, Int8, self.__obstacles_callback)
+        
         self.ctrl_topic = 'camera_control' # Для команд управления подсист. техн. зрения
         self.__ctrl_pub = rospy.Publisher(self.ctrl_topic, String, queue_size=10)
 
+        # Возможно, пойдет в класс TechnicalController
         self.__ctrl_feedback_topic = 'camera_control_feedback' # Для ответа на команды управления подсист. техн. зрения
         self.__ctrl_feedback_sub = rospy.Subscriber(self.__ctrl_feedback_topic, String, self.__ctrl_feedback_callback)
-        
+
         self.__camera_status = False
         self.__resolution = 480
         self.__distance = 5.0
-        pass
+        #
 
+        self.n_obstacles = 0
+        
     def receive(self):
         # rospy.spin()
         pass
+
+    def __obstacles_callback(self, msg:Int8, verbose=True):
+        if verbose:
+            print(f"[{self.obstacles_topic}] Received: {msg.data}")
+            
+        self.n_obstacles = msg.data
 
     def __ctrl_feedback_callback(self, msg:String, verbose=True):
         if verbose:
