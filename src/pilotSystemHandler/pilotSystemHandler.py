@@ -28,10 +28,10 @@ class PilotSystemHandler:
         
         try:
             self.__motors_pub.publish(msg)
-            print(f"[{self.motors_topic}] Sent: '{msg:#x}'")
+            print(f"[{self.motors_topic}] Отправлено (Sent): '{msg:#x}'")
 
         except Exception as e:
-            rospy.logerr(f" [{self.motors_topic}] Failed to send '{msg:#x}' .\n{e}")
+            rospy.logerr(f" [{self.motors_topic}] Ошибка отправки сообщения (Failed to send) '{msg:#x}' .\n{e}")
 
     def send_control(self, msg:String):
         ''' Send control commands via ROS. \n
@@ -45,12 +45,12 @@ class PilotSystemHandler:
         
         try:
             self.__ctrl_pub.publish(msg)
-            print(f"[{self.ctrl_topic}] Sent: '{msg}'")
+            print(f"[{self.ctrl_topic}] Отправлено (Sent): '{msg}'")
 
         except Exception as e:
-            rospy.logerr(f" [{self.ctrl_topic}] Failed to send '{msg}' .\n{e}")
+            rospy.logerr(f" [{self.ctrl_topic}] Ошибка отправки сообщения (Failed to send) '{msg}' .\n{e}")
   
     def __ctrl_feedback_callback(self, msg:String):
-        print(f"[{self.__ctrl_feedback_topic}] Received: {msg.data}")
+        print(f"[{self.__ctrl_feedback_topic}] Получено (Received): {msg.data}")
 
         pass

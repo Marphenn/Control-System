@@ -29,13 +29,13 @@ class CameraHandler:
 
     def __obstacles_callback(self, msg:Int8, verbose=True):
         if verbose:
-            print(f"[{self.obstacles_topic}] Received: {msg.data}")
+            print(f"[{self.obstacles_topic}] Получено (Received): {msg.data}")
             
         self.n_obstacles = msg.data
 
     def __ctrl_feedback_callback(self, msg:String, verbose=True):
         if verbose:
-            print(f"[{self.__ctrl_feedback_topic}] Received: {msg.data}")
+            print(f"[{self.__ctrl_feedback_topic}] Получено (Received): {msg.data}")
         
         msg_split = msg.data.split(':')
         
@@ -55,7 +55,7 @@ class CameraHandler:
         params_list = [self.__camera_status, self.__resolution, self.__distance]
 
         if verbose:
-            print("[INFO] Current camera parameters [status, resolution, distance]: " , params_list)
+            print("[INFO] Текущие параметры камеры (Current camera parameters) - [status, resolution, distance]: " , params_list)
         
         return params_list
 
@@ -64,10 +64,10 @@ class CameraHandler:
             self.__ctrl_pub.publish(msg)
 
             if verbose:
-                print(f"[{self.ctrl_topic}] Sent: '{msg}'")
+                print(f"[{self.ctrl_topic}] Отправлено (Sent): '{msg}'")
 
         except Exception as e:
-            rospy.logerr(f" [{self.ctrl_topic}] Failed to send '{msg}' .\n{e}")
+            rospy.logerr(f" [{self.ctrl_topic}] Ошибка отправки сообщения (Failed to send) '{msg}' .\n{e}")
 
     def update_status(self):
         '''status -> status:on(off) - текущее состояние камеры (ВКЛ. / ВЫКЛ.)'''

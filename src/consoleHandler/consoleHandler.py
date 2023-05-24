@@ -8,7 +8,7 @@ from std_msgs.msg import Int32
 class ConsoleHandler:
 	def __init__(self):
 		# (!) Изменить на joy_msgs_list: в этом списке будут команды дист. упр-я, принятые с ВПУ
-		self.motor_msgs_list = [] 
+		self.joy_msgs_list = [] 
 		#
 		
 		self.__joy_topic = 'console_joy_control'
@@ -27,10 +27,14 @@ class ConsoleHandler:
 
 		self.__remote_ctrl_is_ON = False
 		self.__joy_is_connected = False
-			
+				
 	@property
-	def console_sub(self):
-		return self.__joy_sub
+	def remote_ctrl_is_ON(self):
+		return self.__remote_ctrl_is_ON
+	
+	# @property
+	# def console_sub(self):
+	# 	return self.__joy_sub
 	
 	def receive(self):
 		# rospy.spin()
@@ -44,7 +48,7 @@ class ConsoleHandler:
 		joy_status - (not) connected -> joy:(dis)connected
 		'''	
 		self.__ctrl_pub.publish(msg)
-		print(f"[{self.__ctrl_topic}] Sent: {msg}")
+		print(f"[{self.__ctrl_topic}] Отправлено (Sent): {msg}")
 		pass
 
 	def send_telemetry(self, position:list, speed:int, wheel_rotation:float):
@@ -64,30 +68,39 @@ class ConsoleHandler:
 			+ ";speed:" + str(speed) \
 			+ ";wheel_rotation:" + str(wheel_rotation)
 		self.__telemetry_pub.publish(msg)
-		print(f"[{self.__telemetry_topic}] Sent: {msg}")
+		print(f"[{self.__telemetry_topic}] Отправлено (Sent): {msg}")
 		pass
+
+	def joy_to_motors_cmds(self) -> list:
+		motors_cmds_list = []
+		
+		for msg in self.joy_msgs_list:
+			# Перекодировка команд для дальнейшей отправки на Arduino. (Этот список будет в классе pilotSystemHandler)
+			if msg == "gas":		
+				# Сообщение для отправки на Arduino
+				motors_cmds_list.append(0x02000001)
+
+			elif msg == "brake":
+				motors_cmds_list.append(0x00000001)
+
+			elif msg == "left":
+				motors_cmds_list.append(0x03000000)
+
+			elif msg == "right":
+				motors_cmds_list.append(0x03000001)
+				
+		self.joy_msgs_list.clear() # Очистить список команд с геймпада
+		
+		return motors_cmds_list
 	
 	def __joy_callback(self, msg:String):
-		print(f"[{self.__joy_topic}] Received: {msg.data}")
+		print(f"[{self.__joy_topic}] Получено (Received): {msg.data}")
 		
-		# self.__handle_msg(msg.data)
-		# Перекодировка команд для дальнейшей отправки на Arduino
-		if msg == "gas":		
-			# Сообщение для отправки на Arduino
-			self.motor_msgs_list.append(0x02000001)
-
-		elif msg == "brake":
-			self.motor_msgs_list.append(0x00000001)
-
-		elif msg == "left":
-			self.motor_msgs_list.append(0x03000000)
-
-		elif msg == "right":
-			self.motor_msgs_list.append(0x03000001)
-
+		# Добавление полученной команды в список команд управления с геймпада
+		self.joy_msgs_list.append(msg.data)
 
 	def __ctrl_feedback_callback(self, msg:String):
-		print(f"[{self.__ctrl_feedback_topic}] Received: {msg.data}")
+		print(f"[{self.__ctrl_feedback_topic}] Получено (Received): {msg.data}")
 
 		if msg.data == "joy:connected":
 			self.__joy_is_connected = True
@@ -100,9 +113,13 @@ class ConsoleHandler:
 
 		elif msg.data == "remote_ctrl:off":
 			self.__remote_ctrl_is_ON = False
+		
+		else:
+			print(f"[ERROR] '{msg.data}' - Неверный формат команды.")
+			return
 
-		print(f"Joy is connected: {self.__joy_is_connected}")
-		print(f"Remote control is ON: {self.__remote_ctrl_is_ON}")
+		print(f"Геймпад подключен (Joy is connected): {self.__joy_is_connected}")
+		print(f"Удаленное управление включено (Remote control is ON): {self.__remote_ctrl_is_ON}")
 
 		pass
 		
