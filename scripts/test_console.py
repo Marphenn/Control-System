@@ -2,7 +2,7 @@
 import rospy
 from std_msgs.msg import String
 
-def ros_sender(msg:String): # pub:rospy.Publisher, 
+def test_ros_sender(topic:str, msg:String): # pub:rospy.Publisher, 
     '''Send commands via ROS'''
     try:
         # pub.publish(msg)
@@ -10,37 +10,50 @@ def ros_sender(msg:String): # pub:rospy.Publisher,
 
         # For debugging
         rate = rospy.Rate(1)
-        while not rospy.is_shutdown():
+        while not rospy.is_shutdown():   
             msg = "gas"
             pub.publish(msg)
             rospy.loginfo(f"[SENT] {msg}")
-
-            msg_feedback = "resolution:720"
-            feedback_pub.publish(msg_feedback)
-            rospy.loginfo(f"[SENT] {msg_feedback}")
-
             rate.sleep()
 
-            msg = "brake"
-            pub.publish(msg)
-            rospy.loginfo(f"[SENT] {msg}")
-
-            msg_feedback = "resolution:240"
-            feedback_pub.publish(msg_feedback)
-            rospy.loginfo(f"[SENT] {msg_feedback}")
-
+            pub.publish("left")
+            # rospy.loginfo(f"[SENT] {msg}")
             rate.sleep()
 
-            # msg = "left"
-            # pub.publish(msg)
+            pub.publish("left")
             # rospy.loginfo(f"[SENT] {msg}")
-            # rate.sleep()
+            rate.sleep()
 
-            # msg = "right"
-            # pub.publish(msg)
+            pub.publish("left")
             # rospy.loginfo(f"[SENT] {msg}")
-            # rate.sleep()
+            rate.sleep()
+
+            pub.publish("left")
+            # rospy.loginfo(f"[SENT] {msg}")
+            rate.sleep()
+
+            pub.publish("brake")
+            # rospy.loginfo(f"[SENT] {msg}")
+            rate.sleep()
+
+            pub.publish("brake")
+            # rospy.loginfo(f"[SENT] {msg}")
+            rate.sleep()
             
+            feedback_pub.publish("joy:off")
+            rate.sleep()
+
+            # msg_feedback = "joy:connected"
+            # feedback_pub.publish(msg_feedback)
+            # rospy.loginfo(f"[SENT] {msg_feedback}")
+            # rate.sleep()
+
+            # msg = "break"
+            # pub.publish(msg)
+            # rospy.loginfo(f"[SENT] {msg}")
+            # rate.sleep()
+
+                      
     except Exception as e:
         rospy.logwarn(e)
 
@@ -49,14 +62,19 @@ if __name__ == "__main__":
     global feedback_pub
 
     pubTopic = 'console_joy_control'
-    pub = rospy.Publisher(pubTopic, String, queue_size=10)
-
+    subTopic = 'console_control'
     feedback_topic = 'console_control_feedback'
-    camera_ctrl_topic = 'camera_control_feedback'
-    feedback_pub = rospy.Publisher(camera_ctrl_topic, String, queue_size=10)
-    rospy.init_node('console_test')
+
+    pub = rospy.Publisher(pubTopic, String, queue_size=10)
+    feedback_pub = rospy.Publisher(feedback_topic, String, queue_size=10)
+    sub = rospy.Subscriber(subTopic, String)
+    rospy.init_node('console')
+
+    rate = rospy.Rate(1)
+    
     try:
         # msg = "gas"
-        ros_sender(None)
+        test_ros_sender(topic=feedback_topic, msg=None)
+ 
     except rospy.ROSInterruptException:
         pass

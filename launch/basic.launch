@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="control_system" type="main_node.py" name="controlSystem_RPi4">
+    <!-- <param name="dev" type="string" value="/dev/input/js2" /> -->
+  </node>
+</launch>

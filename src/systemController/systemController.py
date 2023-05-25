@@ -53,7 +53,7 @@ class SystemController:
                         либо отпр. команду упр-я на ВПУ "remote_ctrl:off"). Отправить инф. о препятствии на ВПУ.      
                '''
             
-            console_handler.receive() # *1.1 (автом.) 
+            # console_handler.receive() # *1.1 (автом.) 
             # console_handler.__joy_callback(msg) # *1.2 (автом.)
             pilot_system_handler.motors_cmds_list = console_handler.joy_to_motors_cmds()
 
@@ -63,7 +63,7 @@ class SystemController:
             pilot_system_handler.motors_cmds_list.clear() # удалить отправленные команды из списка команд для ПП
             #
 
-            camera_handler.receive() # *3.1 (автом.)
+            # camera_handler.receive() # *3.1 (автом.)
 
             # +. Инициализация
             # if console_handler.remote_ctrl_is_ON == False:

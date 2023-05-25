@@ -88,35 +88,71 @@ class ConsoleHandler:
 
 			elif msg == "right":
 				motors_cmds_list.append(0x03000001)
-				
+			
+			else:
+				rospy.logerr('[ERROR] Неверный формат команды дистанционного управления.\n \
+		 		Список допустимых команд:\n \
+		 		\t-gas - движение вперед\n \
+		 		\t-brake - тормоз\n \
+		 		\t-left - поворот колес влево\n \
+		 		\t-right - поворот колес вправо')
+				self.joy_msgs_list.remove(msg)
+
+		# print(f'Список команд для отправки в подсистему пилотирования:{motors_cmds_list}')
 		self.joy_msgs_list.clear() # Очистить список команд с геймпада
 		
 		return motors_cmds_list
 	
 	def __joy_callback(self, msg:String):
-		print(f"[{self.__joy_topic}] Получено (Received): {msg.data}")
+		rospy.loginfo(f"[{self.__joy_topic}] Получено (Received): {msg.data}")
 		
 		# Добавление полученной команды в список команд управления с геймпада
 		self.joy_msgs_list.append(msg.data)
 
 	def __ctrl_feedback_callback(self, msg:String):
-		print(f"[{self.__ctrl_feedback_topic}] Получено (Received): {msg.data}")
+		rospy.loginfo(f"[{self.__ctrl_feedback_topic}] Получено (Received): {msg.data}")
 
-		if msg.data == "joy:connected":
-			self.__joy_is_connected = True
+		if msg.data.startswith("joy:"):
+			if msg.data == "joy:connected":
+				self.__joy_is_connected = True
 
-		elif msg.data == "joy:disconnected":
-			self.__joy_is_connected = False
+			elif msg.data == "joy:disconnected":
+				self.__joy_is_connected = False
 
-		elif msg.data == "remote_ctrl:on":
-			self.__remote_ctrl_is_ON = True
+			else:
+				rospy.logerr(f"[ERROR] '{msg.data}' - Неверное значение параметра.")
+				return
 
-		elif msg.data == "remote_ctrl:off":
-			self.__remote_ctrl_is_ON = False
-		
+		elif msg.data.startswith("remote_ctrl:"):
+			if msg.data == "remote_ctrl:on":
+				self.__remote_ctrl_is_ON = True
+
+			elif msg.data == "remote_ctrl:off":
+				self.__remote_ctrl_is_ON = False
+			
+			else:
+				rospy.logerr(f"[ERROR] '{msg.data}' - Неверное значение параметра.")
+				return
+
 		else:
-			print(f"[ERROR] '{msg.data}' - Неверный формат команды.")
+			rospy.logerr(f"[ERROR] '{msg.data}' - Неверный формат.")
 			return
+		
+		# if msg.data == "joy:connected":
+		# 	self.__joy_is_connected = True
+
+		# elif msg.data == "joy:disconnected":
+		# 	self.__joy_is_connected = False
+
+		# elif msg.data == "remote_ctrl:on":
+		# 	self.__remote_ctrl_is_ON = True
+
+		# elif msg.data == "remote_ctrl:off":
+		# 	self.__remote_ctrl_is_ON = False
+		
+		# else:
+		# 	print(f"[ERROR] '{msg.data}' - Неверный формат команды.")
+		# 	return
 
 		print(f"Геймпад подключен (Joy is connected): {self.__joy_is_connected}")
 		print(f"Удаленное управление включено (Remote control is ON): {self.__remote_ctrl_is_ON}")
