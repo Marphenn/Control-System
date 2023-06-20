@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import rospy
+from std_msgs.msg import String
 
 from consoleHandler import *
 from pilotSystemHandler import *
@@ -10,6 +11,13 @@ class SystemController:
         self.node_name = node_name
         rospy.init_node(node_name)
         rospy.loginfo(f"({node_name}) Started node!")
+        # telemetry
+        self.telemetry_topic = 'telemetry'
+        self.telemetry_pub = rospy.Publisher(self.telemetry_topic, String, queue_size=10)
+
+        # joy topic - для команд дист. упр-я
+        self.joy_new_topic = 'robot_control'
+        self.joy_pub = rospy.Publisher(self.joy_new_topic, String, queue_size=10)
     
     def run(self):
         console_handler = ConsoleHandler()
@@ -23,7 +31,7 @@ class SystemController:
                 запущена нода; созданы publisher-ы / subscriber-ы; флаг status(isReady) -> True.
                 Подсистема готова отправлять и принимать сообщения. 
             +. Получить ответ от каждой подсистемы: ВПУ, ПП, ПТЗ. Ответ - текущее состояние,
-                успешна ли произведена инициализация.
+                успешно ли произведена инициализация.
         '''
         while not rospy.is_shutdown():
             ''' 
@@ -54,7 +62,6 @@ class SystemController:
                '''
             
             # console_handler.receive() # *1.1 (автом.) 
-            # console_handler.__joy_callback(msg) # *1.2 (автом.)
             pilot_system_handler.motors_cmds_list = console_handler.joy_to_motors_cmds()
 
             # 2.1
@@ -64,10 +71,18 @@ class SystemController:
             #
 
             # camera_handler.receive() # *3.1 (автом.)
+            if camera_handler.n_obstacles > 0:
+                rospy.logwarn(f'Обнаружено препятствие! Кол-во обнаруженных препятствий:{camera_handler.n_obstacles}')
+                for i in range(5):
+                    self.joy_pub.publish('BRAKE:')
+                camera_handler.n_obstacles = 0
 
             # +. Инициализация
             # if console_handler.remote_ctrl_is_ON == False:
             #     print('Ошибка инициализации внешнего пульта управления.')
+
+            # Отправка телеметрии
+            
         #
 
         # # For debugging and testing

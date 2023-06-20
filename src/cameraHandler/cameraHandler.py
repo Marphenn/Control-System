@@ -6,14 +6,14 @@ from std_msgs.msg import Int8
 
 class CameraHandler:
     def __init__(self) -> None:
-        self.obstacles_topic = 'camera_obstacles'
-        self.__obstacles_sub = rospy.Subscriber(self.obstacles_topic, Int8, self.__obstacles_callback)
+        self.obstacles_topic = 'tech_view'
+        self.__obstacles_sub = rospy.Subscriber(self.obstacles_topic, String, self.__obstacles_callback)
         
-        self.ctrl_topic = 'camera_control' # Для команд управления подсист. техн. зрения
+        self.ctrl_topic = 'tech_view_control' # Для команд управления подсист. техн. зрения
         self.__ctrl_pub = rospy.Publisher(self.ctrl_topic, String, queue_size=10)
 
         # Возможно, пойдет в класс TechnicalController
-        self.__ctrl_feedback_topic = 'camera_control_feedback' # Для ответа на команды управления подсист. техн. зрения
+        self.__ctrl_feedback_topic = 'tech_view_control_feedback' # Для ответа на команды управления подсист. техн. зрения
         self.__ctrl_feedback_sub = rospy.Subscriber(self.__ctrl_feedback_topic, String, self.__ctrl_feedback_callback)
 
         self.__camera_status = False
@@ -27,11 +27,13 @@ class CameraHandler:
         # rospy.spin()
         pass
 
-    def __obstacles_callback(self, msg:Int8, verbose=True):
+    def __obstacles_callback(self, msg:String, verbose=True):
         if verbose:
             print(f"[{self.obstacles_topic}] Получено (Received): {msg.data}")
-            
-        self.n_obstacles = msg.data
+
+        if msg.data.startswith('FACES_NUMBER:'):
+            self.n_obstacles = int(msg.data.split(':')[1])
+            # print(self.n_obstacles)
 
     def __ctrl_feedback_callback(self, msg:String, verbose=True):
         if verbose:

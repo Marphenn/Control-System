@@ -11,15 +11,19 @@ class ConsoleHandler:
 		self.joy_msgs_list = [] 
 		#
 		
+		# СТАРАЯ ВЕРСИЯ ТОПИКА. ТЕПЕРЬ ПП САМА ПРИНИМАЕТ И ОБРАБАТЫВАЕТ КОМАНДЫ ДИСТ. УПР-Я С ВПУ, БЕЗ МОЕГО УЧАСТИЯ
 		self.__joy_topic = 'console_joy_control'
 		self.__joy_sub = rospy.Subscriber(self.__joy_topic, String, self.__joy_callback)
+		#
 
+		# ЭТИ ТОПИКИ ЕЩЕ НЕ ДО КОНЦА РЕАЛИЗОВАНЫ
 		self.__ctrl_topic = 'console_control'
 		self.__ctrl_pub = rospy.Publisher(self.__ctrl_topic, String, queue_size=10)
 		
 		# Возможно, пойдет в класс TechnicalController
 		self.__ctrl_feedback_topic = 'console_control_feedback'
 		self.__ctrl_feedback_sub = rospy.Subscriber(self.__ctrl_feedback_topic, String, self.__ctrl_feedback_callback)
+		#
 		#
 
 		self.__telemetry_topic = 'console_telemetry'
